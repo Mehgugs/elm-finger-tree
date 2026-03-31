@@ -544,9 +544,6 @@ splitTree ({ combine } as config) p i t =
             let
                 vl =
                     combine i (tagOfDigit config l)
-
-                vm =
-                    combine vl (tagOfTree config m)
             in
             if p vl then
                 let
@@ -555,28 +552,33 @@ splitTree ({ combine } as config) p i t =
                 in
                 ( left |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty, deepL config right m r )
 
-            else if p vm then
-                let
-                    ( ml, mr ) =
-                        splitTree config p vl m
-                in
-                case viewLeftNode config mr of
-                    Just ( xs, mrr ) ->
-                        let
-                            ( lf, rf ) =
-                                cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit config xs)
-                        in
-                        ( deepR config l ml lf, deepL config rf mr r )
-
-                    Nothing ->
-                        ( deepR config l ml Nothing, deepL config Nothing mr r )
-
             else
                 let
-                    ( left, right ) =
-                        cutDigit config p vm r
+                    vm =
+                        combine vl (tagOfTree config m)
                 in
-                ( deepR config l m left, right |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty )
+                if p vm then
+                    let
+                        ( ml, mr ) =
+                            splitTree config p vl m
+                    in
+                    case viewLeftNode config mr of
+                        Just ( xs, mrr ) ->
+                            let
+                                ( lf, rf ) =
+                                    cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit config xs)
+                            in
+                            ( deepR config l ml lf, deepL config rf mr r )
+
+                        Nothing ->
+                            ( deepR config l ml Nothing, deepL config Nothing mr r )
+
+                else
+                    let
+                        ( left, right ) =
+                            cutDigit config p vm r
+                    in
+                    ( deepR config l m left, right |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty )
 
 
 foldLNode : (b -> ( tag, a ) -> b) -> b -> Node a tag -> b
