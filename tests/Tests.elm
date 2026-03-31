@@ -147,7 +147,7 @@ suite =
                             tempty |> Ft.appendList [ 1, 2, 3, 6, 7, 8 ]
                     in
                     case Ft.cut (\i -> i >= 4) tree of
-                        ( l, Just x, r ) ->
+                        ( _, Just x, _ ) ->
                             Expect.equal 6 x
 
                         _ ->
