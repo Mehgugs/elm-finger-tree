@@ -266,7 +266,7 @@ foldLeft f init (Tree _ t) =
 -}
 foldRight : (a -> b -> b) -> b -> Tree a tag -> b
 foldRight f init (Tree _ t) =
-    Internal.foldr (Tuple.second >> f) t init
+    Internal.foldr (\( _, a ) b -> f a b) t init
 
 
 {-| This function counts the number of elements in the tree by visiting each element. You could also use the annotation to keep track of this.
