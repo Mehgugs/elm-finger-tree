@@ -312,12 +312,29 @@ head tree =
 
 tail : Config a tag -> Tree a tag -> Maybe (Tree a tag)
 tail config tree =
-    case viewLeftNode config tree of
-        Just ( _, rest ) ->
-            Just rest
-
-        Nothing ->
+    case tree of
+        Empty ->
             Nothing
+
+        Single _ ->
+            Just Empty
+
+        Deep _ (Two _ b) m r ->
+            Just (deep config (One b) m r)
+
+        Deep _ (Three _ b c) m r ->
+            Just (deep config (Two b c) m r)
+
+        Deep _ (Four _ b c d) m r ->
+            Just (deep config (Three b c d) m r)
+
+        Deep _ (One _) m r ->
+            case viewLeftNode config m of
+                Nothing ->
+                    Just (digitToTree config r)
+
+                Just ( b, m2 ) ->
+                    Just (deep config (nodeToDigit b) m2 r)
 
 
 end : Config a tag -> Tree a tag -> Maybe a
