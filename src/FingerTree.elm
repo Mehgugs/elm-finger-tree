@@ -185,8 +185,8 @@ isEmpty (Tree _ t) =
 {-| Extract the leftmost / first element of the tree.
 -}
 head : Tree a tag -> Maybe a
-head (Tree c t) =
-    Internal.head c t
+head (Tree _ t) =
+    Internal.head t
 
 
 {-| Remove the leftmost / first element of the tree.

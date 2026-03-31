@@ -300,9 +300,14 @@ viewRight config tree =
             Nothing
 
 
-head : Config a tag -> Tree a tag -> Maybe a
-head config tree =
-    viewLeft config tree |> Maybe.map (Tuple.first >> Tuple.second)
+head : Tree a tag -> Maybe a
+head tree =
+    case viewLeftHead tree of
+        Just (Tip a _) ->
+            Just a
+
+        _ ->
+            Nothing
 
 
 tail : Config a tag -> Tree a tag -> Maybe (Tree a tag)
