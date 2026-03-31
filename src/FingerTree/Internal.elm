@@ -312,7 +312,12 @@ head tree =
 
 tail : Config a tag -> Tree a tag -> Maybe (Tree a tag)
 tail config tree =
-    viewLeft config tree |> Maybe.map Tuple.second
+    case viewLeftNode config tree of
+        Just ( _, rest ) ->
+            Just rest
+
+        Nothing ->
+            Nothing
 
 
 end : Config a tag -> Tree a tag -> Maybe a
