@@ -1,4 +1,4 @@
-module Tests exposing (..)
+module Tests exposing (fuzzer, simple, suite, tempty)
 
 import Expect
 import FingerTree as Ft
