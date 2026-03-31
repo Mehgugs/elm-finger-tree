@@ -1,68 +1,23 @@
 module FingerTree.Internal exposing
     ( Config
-    , Digit(..)
-    , Node(..)
+    , Digit
+    , Node
     , Tree(..)
-    , a3
-    , app3
     , append
-    , buildNodes
-    , cat
     , count
-    , countDigit
-    , countNode
-    , countNodeHelp
-    , cutDigit
-    , deep
-    , deepL
-    , deepR
-    , digitToList
-    , digitToNonempty
-    , digitToTree
     , end
     , equal
-    , foldLDigit
-    , foldLNode
-    , foldRDigit
-    , foldRNode
     , foldl
     , foldr
     , head
-    , isLevelN
-    , isLevelNDigit
-    , isLevelNTree
-    , isMeasuredDigit
-    , isMeasuredNode
-    , isMeasuredTree
-    , join
     , lcons
-    , lconsNodes
-    , nlcons
-    , node2
-    , node3
-    , nodeToDigit
-    , nodeToEl
-    , nodeToList
-    , nodes
-    , nrcons
-    , ofList
-    , onto
-    , onto3
-    , onto4
-    , pairWith
     , prefix
     , rcons
-    , rconsNodes
     , splitTree
-    , tagOfDigit
-    , tagOfNode
     , tagOfTree
     , tail
-    , treeToList
     , viewLeft
-    , viewLeftNode
     , viewRight
-    , viewRightNode
     )
 
 
@@ -151,144 +106,6 @@ tagOfTree { zero } tree =
             tag
 
 
-isLevelN : Int -> Node a tag -> Bool
-isLevelN n node =
-    if n == 0 then
-        case node of
-            Tip _ _ ->
-                True
-
-            _ ->
-                False
-
-    else
-        case node of
-            Node2 _ n1 n2 ->
-                isLevelN (n - 1) n1 && isLevelN (n - 1) n2
-
-            Node3 _ n1 n2 n3 ->
-                isLevelN (n - 1) n1 && isLevelN (n - 1) n2 && isLevelN (n - 1) n3
-
-            _ ->
-                False
-
-
-isLevelNDigit : Int -> Digit a tag -> Bool
-isLevelNDigit n digit =
-    case digit of
-        One n1 ->
-            isLevelN n n1
-
-        Two n1 n2 ->
-            isLevelN n n1 && isLevelN n n2
-
-        Three n1 n2 n3 ->
-            isLevelN n n1 && isLevelN n n2 && isLevelN n n3
-
-        Four n1 n2 n3 n4 ->
-            isLevelN n n1 && isLevelN n n2 && isLevelN n n3 && isLevelN n n4
-
-
-isLevelNTree : Int -> Tree a tag -> Bool
-isLevelNTree n tree =
-    case tree of
-        Empty ->
-            True
-
-        Single node ->
-            isLevelN n node
-
-        Deep _ l t r ->
-            isLevelNDigit n l && isLevelNDigit n r && isLevelNTree (n + 1) t
-
-
-isMeasuredNode : Config a tag -> Node a tag -> Bool
-isMeasuredNode ({ combine } as config) node =
-    case node of
-        Tip _ _ ->
-            True
-
-        Node2 a n1 n2 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && (a == onto combine tagOfNode n1 n2)
-
-        Node3 a n1 n2 n3 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3 && (a == onto3 combine tagOfNode n1 n2 n3)
-
-
-isMeasuredDigit : Config a tag -> Digit a tag -> Bool
-isMeasuredDigit config digit =
-    case digit of
-        One n1 ->
-            isMeasuredNode config n1
-
-        Two n1 n2 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2
-
-        Three n1 n2 n3 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3
-
-        Four n1 n2 n3 n4 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3 && isMeasuredNode config n4
-
-
-isMeasuredTree : Config a tag -> Tree a tag -> Bool
-isMeasuredTree ({ combine } as config) tree =
-    case tree of
-        Empty ->
-            True
-
-        Single node ->
-            isMeasuredNode config node
-
-        Deep a l t r ->
-            isMeasuredDigit config l
-                && isMeasuredDigit config r
-                && isMeasuredTree config t
-                && (a == a3 combine (tagOfDigit config l) (tagOfTree config t) (tagOfDigit config r))
-
-
-nodeToList : Node a tag -> List ( tag, a )
-nodeToList node =
-    case node of
-        Tip a tag ->
-            [ ( tag, a ) ]
-
-        Node2 _ n1 n2 ->
-            nodeToList n1 ++ nodeToList n2
-
-        Node3 _ n1 n2 n3 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3
-
-
-digitToList : Digit a tag -> List ( tag, a )
-digitToList digit =
-    case digit of
-        One n1 ->
-            nodeToList n1
-
-        Two n1 n2 ->
-            nodeToList n1 ++ nodeToList n2
-
-        Three n1 n2 n3 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3
-
-        Four n1 n2 n3 n4 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3 ++ nodeToList n4
-
-
-treeToList : Tree a tag -> List ( tag, a )
-treeToList tree =
-    case tree of
-        Empty ->
-            []
-
-        Single n ->
-            nodeToList n
-
-        Deep _ l t r ->
-            digitToList l ++ treeToList t ++ digitToList r
-
-
 deep : Config a tag -> Digit a tag -> Tree a tag -> Digit a tag -> Tree a tag
 deep ({ combine } as config) l m r =
     Deep (a3 combine (tagOfDigit config l) (tagOfTree config m) (tagOfDigit config r)) l m r
@@ -356,20 +173,6 @@ lcons ({ tag } as config) a tree =
 rcons : Config a tag -> a -> Tree a tag -> Tree a tag
 rcons ({ tag } as config) a tree =
     nrcons config (Tip a (tag a)) tree
-
-
-ofList : Config a tag -> List a -> Tree a tag
-ofList config list =
-    let
-        toList l =
-            case l of
-                [] ->
-                    Empty
-
-                a :: xs ->
-                    lcons config a (toList xs)
-    in
-    toList list
 
 
 digitToTree : Config a tag -> Digit a tag -> Tree a tag
