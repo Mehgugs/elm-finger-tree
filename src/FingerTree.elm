@@ -5,6 +5,7 @@ module FingerTree exposing
     , isEmpty, annotation, head, tail, prefix, last, viewLeft, viewRight, length
     , append, split, splitAt, cut, foldLeft, foldRight, toList, equal
     , Tagged, unconsLeft, unconsRight, cutWithTag, foldLeftWithTag, foldRightWithTag
+    , config, mempty, mappend, annotator
     )
 
 {-| This package provides an implementation of 2-3 finger trees. Finger trees are a general purpose purely functional data structure that
@@ -104,18 +105,21 @@ mappend (Cfg { combine }) =
     combine
 
 
-{-| -}
+{-| The function that assigns elements their annotation used by the tree config.
+-}
 annotator : Config a tag -> (a -> tag)
 annotator (Cfg { tag }) =
     tag
 
 
+{-| Extract the config being used by the tree.
+-}
 config : Tree a tag -> Config a tag
 config (Tree c t) =
     Cfg c
 
 
-{-| Given the tag config you want to use, create an empty tree using that config.
+{-| Given the config you want to use, create an empty tree using that config.
 -}
 empty : Config a tag -> Tree a tag
 empty (Cfg c) =

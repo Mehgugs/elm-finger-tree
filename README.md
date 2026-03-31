@@ -15,19 +15,23 @@ The simplest of these is the random access sequence, which I've also copied belo
 
 ## Example : Random access sequence
 
-A simple random access sequence, where the head of the upper tree of the split is the nth element.
+A simple random access sequence, using the split operation to partition the list at the nth element.
 
 ```elm
 import FingerTree as Ft
 
 
-size : Ft.Config a Int
-size =
-    Ft.create { empty = 0, combine = (+), annotate = always 1 }
-
-
 type alias Seq a =
     Ft.Tree a Int
+
+
+size : Ft.Config a Int
+size =
+    Ft.create
+        { empty = 0
+        , combine = (+)
+        , annotate = always 1
+        }
 
 
 empty : Seq a

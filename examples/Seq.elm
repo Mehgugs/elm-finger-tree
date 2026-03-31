@@ -5,7 +5,11 @@ import FingerTree as Ft
 
 size : Ft.Config a Int
 size =
-    Ft.create { empty = 0, combine = (+), annotate = always 1 }
+    Ft.create
+        { empty = 0
+        , combine = (+)
+        , annotate = always 1
+        }
 
 
 type alias Seq a =
