@@ -165,14 +165,14 @@ consRight a (Tree c t) =
 -}
 viewLeft : Tree a tag -> Maybe ( a, Tree a tag )
 viewLeft (Tree c t) =
-    Internal.viewLeft c t |> Maybe.map (Tuple.mapBoth Tuple.second (Tree c))
+    Internal.viewLeft c t |> Maybe.map (\( ( _, a ), rest ) -> ( a, Tree c rest ))
 
 
 {-| Extract the rightmost element from the tree and return it and the remaining tree.
 -}
 viewRight : Tree a tag -> Maybe ( a, Tree a tag )
 viewRight (Tree c t) =
-    Internal.viewRight c t |> Maybe.map (Tuple.mapBoth Tuple.second (Tree c))
+    Internal.viewRight c t |> Maybe.map (\( ( _, a ), rest ) -> ( a, Tree c rest ))
 
 
 {-| Check if the tree is empty.
@@ -225,7 +225,11 @@ The predicate being monotonic means that if it's true for a tag `t` then it's al
 -}
 split : (tag -> Bool) -> Tree a tag -> ( Tree a tag, Tree a tag )
 split p (Tree c t) =
-    Internal.splitTree c p c.zero t |> Tuple.mapBoth (Tree c) (Tree c)
+    let
+        ( a, b ) =
+            Internal.splitTree c p c.zero t
+    in
+    ( Tree c a, Tree c b )
 
 
 {-| Split a tree at a the given tag. This function needs the tags to be comparable so that it can split the tree by `tag >= i`.
@@ -294,14 +298,14 @@ equal (Tree c t1) (Tree _ t2) =
 -}
 unconsLeft : Tree a tag -> Maybe ( Tagged a tag, Tree a tag )
 unconsLeft (Tree c t) =
-    Internal.viewLeft c t |> Maybe.map (Tuple.mapSecond (Tree c))
+    Internal.viewLeft c t |> Maybe.map (\( a, rest ) -> ( a, Tree c rest ))
 
 
 {-| Like `viewRight` but also returns the annotation of the element.
 -}
 unconsRight : Tree a tag -> Maybe ( Tagged a tag, Tree a tag )
 unconsRight (Tree c t) =
-    Internal.viewRight c t |> Maybe.map (Tuple.mapSecond (Tree c))
+    Internal.viewRight c t |> Maybe.map (\( a, rest ) -> ( a, Tree c rest ))
 
 
 {-| Like `split` but also returns the annotation of the element which caused the split.
