@@ -320,7 +320,7 @@ cutWithTag p (Tree c t) =
         Just ( x, rest ) ->
             ( Tree c l, Just x, Tree c rest )
 
-        _ ->
+        Nothing ->
             ( Tree c l, Nothing, Tree c r )
 
 
