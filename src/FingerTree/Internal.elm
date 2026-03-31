@@ -191,8 +191,8 @@ digitToTree config digit =
             deep config (Two a b) Empty (Two c d)
 
 
-nodeToDigit : Config a tag -> Node a tag -> Digit a tag
-nodeToDigit _ node =
+nodeToDigit : Node a tag -> Digit a tag
+nodeToDigit node =
     case node of
         Tip a tag ->
             One (Tip a tag)
@@ -228,7 +228,7 @@ viewLeftNode config tree =
                     Just ( a, digitToTree config r )
 
                 Just ( b, m2 ) ->
-                    Just ( a, deep config (nodeToDigit config b) m2 r )
+                    Just ( a, deep config (nodeToDigit b) m2 r )
 
 
 viewRightNode : Config a tag -> Tree a tag -> Maybe ( Node a tag, Tree a tag )
@@ -255,7 +255,7 @@ viewRightNode config tree =
                     Just ( a, digitToTree config l )
 
                 Just ( b, m2 ) ->
-                    Just ( a, deep config l m2 (nodeToDigit config b) )
+                    Just ( a, deep config l m2 (nodeToDigit b) )
 
 
 nodeToEl : Node a tag -> Maybe ( tag, a )
@@ -422,7 +422,7 @@ deepL config ll m r =
                     digitToTree config r
 
                 Just ( a, m2 ) ->
-                    deep config (nodeToDigit config a) m2 r
+                    deep config (nodeToDigit a) m2 r
 
         Just l ->
             deep config l m r
@@ -437,7 +437,7 @@ deepR config l m rr =
                     digitToTree config l
 
                 Just ( a, m2 ) ->
-                    deep config l m2 (nodeToDigit config a)
+                    deep config l m2 (nodeToDigit a)
 
         Just r ->
             deep config l m r
@@ -566,7 +566,7 @@ splitTree ({ combine } as config) p i t =
                         Just ( xs, mrr ) ->
                             let
                                 ( lf, rf ) =
-                                    cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit config xs)
+                                    cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit xs)
                             in
                             ( deepR config l ml lf, deepL config rf mr r )
 

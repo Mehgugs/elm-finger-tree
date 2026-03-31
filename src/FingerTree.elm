@@ -115,7 +115,7 @@ annotator (Cfg { tag }) =
 {-| Extract the config being used by the tree.
 -}
 config : Tree a tag -> Config a tag
-config (Tree c t) =
+config (Tree c _) =
     Cfg c
 
 
@@ -178,7 +178,7 @@ viewRight (Tree c t) =
 {-| Check if the tree is empty.
 -}
 isEmpty : Tree a tag -> Bool
-isEmpty (Tree c t) =
+isEmpty (Tree _ t) =
     t == Internal.Empty
 
 
@@ -254,21 +254,21 @@ cut p (Tree c t) =
 {-| Perform a fold on the tree from left to right; using the same argument order as `List.foldl`.
 -}
 foldLeft : (a -> b -> b) -> b -> Tree a tag -> b
-foldLeft f init (Tree c t) =
+foldLeft f init (Tree _ t) =
     Internal.foldl (\acc ( _, item ) -> f item acc) init t
 
 
 {-| Perform a fold on the tree from right to left; using the same argument order as `List.foldr`.
 -}
 foldRight : (a -> b -> b) -> b -> Tree a tag -> b
-foldRight f init (Tree c t) =
+foldRight f init (Tree _ t) =
     Internal.foldr (Tuple.second >> f) t init
 
 
 {-| This function counts the number of elements in the tree by visiting each element. You could also use the annotation to keep track of this.
 -}
 length : Tree a tag -> Int
-length (Tree c t) =
+length (Tree _ t) =
     Internal.count t
 
 
@@ -323,12 +323,12 @@ cutWithTag p (Tree c t) =
 {-| Like `foldLeft` but uses the natural argument order and uses the annotation and element to fold.
 -}
 foldLeftWithTag : (b -> Tagged a tag -> b) -> b -> Tree a tag -> b
-foldLeftWithTag f init (Tree c t) =
+foldLeftWithTag f init (Tree _ t) =
     Internal.foldl f init t
 
 
 {-| Like `foldRight` but uses the natural argument order and uses the annotation and element to fold.
 -}
 foldRightWithTag : (Tagged a tag -> b -> b) -> Tree a tag -> b -> b
-foldRightWithTag f (Tree c t) init =
+foldRightWithTag f (Tree _ t) init =
     Internal.foldr f t init
