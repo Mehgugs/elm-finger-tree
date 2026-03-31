@@ -563,7 +563,7 @@ splitTree ({ combine } as config) p i t =
                             splitTree config p vl m
                     in
                     case viewLeftNode config mr of
-                        Just ( xs, mrr ) ->
+                        Just ( xs, _ ) ->
                             let
                                 ( lf, rf ) =
                                     cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit xs)
