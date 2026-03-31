@@ -231,6 +231,28 @@ viewLeftNode config tree =
                     Just ( a, deep config (nodeToDigit b) m2 r )
 
 
+viewLeftHead : Tree a tag -> Maybe (Node a tag)
+viewLeftHead tree =
+    case tree of
+        Empty ->
+            Nothing
+
+        Single a ->
+            Just a
+
+        Deep _ (Two a _) _ _ ->
+            Just a
+
+        Deep _ (Three a _ _) _ _ ->
+            Just a
+
+        Deep _ (Four a _ _ _) _ _ ->
+            Just a
+
+        Deep _ (One a) _ _ ->
+            Just a
+
+
 viewRightNode : Config a tag -> Tree a tag -> Maybe ( Node a tag, Tree a tag )
 viewRightNode config tree =
     case tree of
@@ -562,8 +584,8 @@ splitTree ({ combine } as config) p i t =
                         ( ml, mr ) =
                             splitTree config p vl m
                     in
-                    case viewLeftNode config mr of
-                        Just ( xs, _ ) ->
+                    case viewLeftHead mr of
+                        Just xs ->
                             let
                                 ( lf, rf ) =
                                     cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit xs)
