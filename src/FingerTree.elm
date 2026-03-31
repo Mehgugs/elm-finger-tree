@@ -179,7 +179,12 @@ viewRight (Tree c t) =
 -}
 isEmpty : Tree a tag -> Bool
 isEmpty (Tree _ t) =
-    t == Internal.Empty
+    case t of
+        Internal.Empty ->
+            True
+
+        _ ->
+            False
 
 
 {-| Extract the leftmost / first element of the tree.
