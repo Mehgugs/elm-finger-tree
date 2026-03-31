@@ -2,7 +2,6 @@ module Tests exposing (fuzzer, simple, suite, tempty)
 
 import Expect
 import FingerTree as Ft
-import FingerTree.Internal as Internals
 import Fuzz
 import Test exposing (Test, describe, test)
 
