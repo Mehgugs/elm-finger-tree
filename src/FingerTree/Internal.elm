@@ -425,11 +425,6 @@ viewRight config tree =
             Nothing
 
 
-isEmpty : Tree a tag -> Bool
-isEmpty t =
-    t == Empty
-
-
 head : Config a tag -> Tree a tag -> Maybe a
 head config tree =
     viewLeft config tree |> Maybe.map (Tuple.first >> Tuple.second)
