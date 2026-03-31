@@ -280,38 +280,23 @@ viewRightNode config tree =
                     Just ( a, deep config l m2 (nodeToDigit b) )
 
 
-nodeToEl : Node a tag -> Maybe ( tag, a )
-nodeToEl node =
-    case node of
-        Tip a tag ->
-            Just ( tag, a )
-
-        _ ->
-            Nothing
-
-
-pairWith : b -> a -> ( a, b )
-pairWith b a =
-    ( a, b )
-
-
 viewLeft : Config a tag -> Tree a tag -> Maybe ( ( tag, a ), Tree a tag )
 viewLeft config tree =
     case viewLeftNode config tree of
-        Just ( na, rest ) ->
-            nodeToEl na |> Maybe.map (pairWith rest)
+        Just ( Tip a tag, rest ) ->
+            Just ( ( tag, a ), rest )
 
-        Nothing ->
+        _ ->
             Nothing
 
 
 viewRight : Config a tag -> Tree a tag -> Maybe ( ( tag, a ), Tree a tag )
 viewRight config tree =
     case viewRightNode config tree of
-        Just ( na, rest ) ->
-            nodeToEl na |> Maybe.map (pairWith rest)
+        Just ( Tip a tag, rest ) ->
+            Just ( ( tag, a ), rest )
 
-        Nothing ->
+        _ ->
             Nothing
 
 
