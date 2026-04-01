@@ -1,8 +1,7 @@
-module Tests exposing (..)
+module Tests exposing (suite)
 
 import Expect
 import FingerTree as Ft
-import FingerTree.Internal as Internals
 import Fuzz
 import Test exposing (Test, describe, test)
 
@@ -148,7 +147,7 @@ suite =
                             tempty |> Ft.appendList [ 1, 2, 3, 6, 7, 8 ]
                     in
                     case Ft.cut (\i -> i >= 4) tree of
-                        ( l, Just x, r ) ->
+                        ( _, Just x, _ ) ->
                             Expect.equal 6 x
 
                         _ ->

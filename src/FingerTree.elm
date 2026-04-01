@@ -115,7 +115,7 @@ annotator (Cfg { tag }) =
 {-| Extract the config being used by the tree.
 -}
 config : Tree a tag -> Config a tag
-config (Tree c t) =
+config (Tree c _) =
     Cfg c
 
 
@@ -165,28 +165,33 @@ consRight a (Tree c t) =
 -}
 viewLeft : Tree a tag -> Maybe ( a, Tree a tag )
 viewLeft (Tree c t) =
-    Internal.viewLeft c t |> Maybe.map (Tuple.mapBoth Tuple.second (Tree c))
+    Internal.viewLeft c t |> Maybe.map (\( ( _, a ), rest ) -> ( a, Tree c rest ))
 
 
 {-| Extract the rightmost element from the tree and return it and the remaining tree.
 -}
 viewRight : Tree a tag -> Maybe ( a, Tree a tag )
 viewRight (Tree c t) =
-    Internal.viewRight c t |> Maybe.map (Tuple.mapBoth Tuple.second (Tree c))
+    Internal.viewRight c t |> Maybe.map (\( ( _, a ), rest ) -> ( a, Tree c rest ))
 
 
 {-| Check if the tree is empty.
 -}
 isEmpty : Tree a tag -> Bool
-isEmpty (Tree c t) =
-    t == Internal.Empty
+isEmpty (Tree _ t) =
+    case t of
+        Internal.Empty ->
+            True
+
+        _ ->
+            False
 
 
 {-| Extract the leftmost / first element of the tree.
 -}
 head : Tree a tag -> Maybe a
-head (Tree c t) =
-    Internal.head c t
+head (Tree _ t) =
+    Internal.head t
 
 
 {-| Remove the leftmost / first element of the tree.
@@ -225,7 +230,11 @@ The predicate being monotonic means that if it's true for a tag `t` then it's al
 -}
 split : (tag -> Bool) -> Tree a tag -> ( Tree a tag, Tree a tag )
 split p (Tree c t) =
-    Internal.splitTree c p c.zero t |> Tuple.mapBoth (Tree c) (Tree c)
+    let
+        ( a, b ) =
+            Internal.splitTree c p c.zero t
+    in
+    ( Tree c a, Tree c b )
 
 
 {-| Split a tree at a the given tag. This function needs the tags to be comparable so that it can split the tree by `tag >= i`.
@@ -254,21 +263,21 @@ cut p (Tree c t) =
 {-| Perform a fold on the tree from left to right; using the same argument order as `List.foldl`.
 -}
 foldLeft : (a -> b -> b) -> b -> Tree a tag -> b
-foldLeft f init (Tree c t) =
+foldLeft f init (Tree _ t) =
     Internal.foldl (\acc ( _, item ) -> f item acc) init t
 
 
 {-| Perform a fold on the tree from right to left; using the same argument order as `List.foldr`.
 -}
 foldRight : (a -> b -> b) -> b -> Tree a tag -> b
-foldRight f init (Tree c t) =
-    Internal.foldr (Tuple.second >> f) t init
+foldRight f init (Tree _ t) =
+    Internal.foldr (\( _, a ) b -> f a b) t init
 
 
 {-| This function counts the number of elements in the tree by visiting each element. You could also use the annotation to keep track of this.
 -}
 length : Tree a tag -> Int
-length (Tree c t) =
+length (Tree _ t) =
     Internal.count t
 
 
@@ -294,14 +303,14 @@ equal (Tree c t1) (Tree _ t2) =
 -}
 unconsLeft : Tree a tag -> Maybe ( Tagged a tag, Tree a tag )
 unconsLeft (Tree c t) =
-    Internal.viewLeft c t |> Maybe.map (Tuple.mapSecond (Tree c))
+    Internal.viewLeft c t |> Maybe.map (\( a, rest ) -> ( a, Tree c rest ))
 
 
 {-| Like `viewRight` but also returns the annotation of the element.
 -}
 unconsRight : Tree a tag -> Maybe ( Tagged a tag, Tree a tag )
 unconsRight (Tree c t) =
-    Internal.viewRight c t |> Maybe.map (Tuple.mapSecond (Tree c))
+    Internal.viewRight c t |> Maybe.map (\( a, rest ) -> ( a, Tree c rest ))
 
 
 {-| Like `split` but also returns the annotation of the element which caused the split.
@@ -316,19 +325,19 @@ cutWithTag p (Tree c t) =
         Just ( x, rest ) ->
             ( Tree c l, Just x, Tree c rest )
 
-        _ ->
+        Nothing ->
             ( Tree c l, Nothing, Tree c r )
 
 
 {-| Like `foldLeft` but uses the natural argument order and uses the annotation and element to fold.
 -}
 foldLeftWithTag : (b -> Tagged a tag -> b) -> b -> Tree a tag -> b
-foldLeftWithTag f init (Tree c t) =
+foldLeftWithTag f init (Tree _ t) =
     Internal.foldl f init t
 
 
 {-| Like `foldRight` but uses the natural argument order and uses the annotation and element to fold.
 -}
 foldRightWithTag : (Tagged a tag -> b -> b) -> Tree a tag -> b -> b
-foldRightWithTag f (Tree c t) init =
+foldRightWithTag f (Tree _ t) init =
     Internal.foldr f t init

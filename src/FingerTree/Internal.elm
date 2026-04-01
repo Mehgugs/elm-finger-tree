@@ -1,4 +1,24 @@
-module FingerTree.Internal exposing (..)
+module FingerTree.Internal exposing
+    ( Config
+    , Digit
+    , Node
+    , Tree(..)
+    , append
+    , count
+    , end
+    , equal
+    , foldl
+    , foldr
+    , head
+    , lcons
+    , prefix
+    , rcons
+    , splitTree
+    , tagOfTree
+    , tail
+    , viewLeft
+    , viewRight
+    )
 
 
 type alias Config a tag =
@@ -86,144 +106,6 @@ tagOfTree { zero } tree =
             tag
 
 
-isLevelN : Int -> Node a tag -> Bool
-isLevelN n node =
-    if n == 0 then
-        case node of
-            Tip _ _ ->
-                True
-
-            _ ->
-                False
-
-    else
-        case node of
-            Node2 _ n1 n2 ->
-                isLevelN (n - 1) n1 && isLevelN (n - 1) n2
-
-            Node3 _ n1 n2 n3 ->
-                isLevelN (n - 1) n1 && isLevelN (n - 1) n2 && isLevelN (n - 1) n3
-
-            _ ->
-                False
-
-
-isLevelNDigit : Int -> Digit a tag -> Bool
-isLevelNDigit n digit =
-    case digit of
-        One n1 ->
-            isLevelN n n1
-
-        Two n1 n2 ->
-            isLevelN n n1 && isLevelN n n2
-
-        Three n1 n2 n3 ->
-            isLevelN n n1 && isLevelN n n2 && isLevelN n n3
-
-        Four n1 n2 n3 n4 ->
-            isLevelN n n1 && isLevelN n n2 && isLevelN n n3 && isLevelN n n4
-
-
-isLevelNTree : Int -> Tree a tag -> Bool
-isLevelNTree n tree =
-    case tree of
-        Empty ->
-            True
-
-        Single node ->
-            isLevelN n node
-
-        Deep _ l t r ->
-            isLevelNDigit n l && isLevelNDigit n r && isLevelNTree (n + 1) t
-
-
-isMeasuredNode : Config a tag -> Node a tag -> Bool
-isMeasuredNode ({ combine } as config) node =
-    case node of
-        Tip _ _ ->
-            True
-
-        Node2 a n1 n2 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && (a == onto combine tagOfNode n1 n2)
-
-        Node3 a n1 n2 n3 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3 && (a == onto3 combine tagOfNode n1 n2 n3)
-
-
-isMeasuredDigit : Config a tag -> Digit a tag -> Bool
-isMeasuredDigit config digit =
-    case digit of
-        One n1 ->
-            isMeasuredNode config n1
-
-        Two n1 n2 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2
-
-        Three n1 n2 n3 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3
-
-        Four n1 n2 n3 n4 ->
-            isMeasuredNode config n1 && isMeasuredNode config n2 && isMeasuredNode config n3 && isMeasuredNode config n4
-
-
-isMeasuredTree : Config a tag -> Tree a tag -> Bool
-isMeasuredTree ({ combine } as config) tree =
-    case tree of
-        Empty ->
-            True
-
-        Single node ->
-            isMeasuredNode config node
-
-        Deep a l t r ->
-            isMeasuredDigit config l
-                && isMeasuredDigit config r
-                && isMeasuredTree config t
-                && (a == a3 combine (tagOfDigit config l) (tagOfTree config t) (tagOfDigit config r))
-
-
-nodeToList : Node a tag -> List ( tag, a )
-nodeToList node =
-    case node of
-        Tip a tag ->
-            [ ( tag, a ) ]
-
-        Node2 _ n1 n2 ->
-            nodeToList n1 ++ nodeToList n2
-
-        Node3 _ n1 n2 n3 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3
-
-
-digitToList : Digit a tag -> List ( tag, a )
-digitToList digit =
-    case digit of
-        One n1 ->
-            nodeToList n1
-
-        Two n1 n2 ->
-            nodeToList n1 ++ nodeToList n2
-
-        Three n1 n2 n3 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3
-
-        Four n1 n2 n3 n4 ->
-            nodeToList n1 ++ nodeToList n2 ++ nodeToList n3 ++ nodeToList n4
-
-
-treeToList : Tree a tag -> List ( tag, a )
-treeToList tree =
-    case tree of
-        Empty ->
-            []
-
-        Single n ->
-            nodeToList n
-
-        Deep _ l t r ->
-            digitToList l ++ treeToList t ++ digitToList r
-
-
 deep : Config a tag -> Digit a tag -> Tree a tag -> Digit a tag -> Tree a tag
 deep ({ combine } as config) l m r =
     Deep (a3 combine (tagOfDigit config l) (tagOfTree config m) (tagOfDigit config r)) l m r
@@ -293,20 +175,6 @@ rcons ({ tag } as config) a tree =
     nrcons config (Tip a (tag a)) tree
 
 
-ofList : Config a tag -> List a -> Tree a tag
-ofList config list =
-    let
-        toList l =
-            case l of
-                [] ->
-                    Empty
-
-                a :: xs ->
-                    lcons config a (toList xs)
-    in
-    toList list
-
-
 digitToTree : Config a tag -> Digit a tag -> Tree a tag
 digitToTree config digit =
     case digit of
@@ -323,8 +191,8 @@ digitToTree config digit =
             deep config (Two a b) Empty (Two c d)
 
 
-nodeToDigit : Config a tag -> Node a tag -> Digit a tag
-nodeToDigit _ node =
+nodeToDigit : Node a tag -> Digit a tag
+nodeToDigit node =
     case node of
         Tip a tag ->
             One (Tip a tag)
@@ -360,7 +228,29 @@ viewLeftNode config tree =
                     Just ( a, digitToTree config r )
 
                 Just ( b, m2 ) ->
-                    Just ( a, deep config (nodeToDigit config b) m2 r )
+                    Just ( a, deep config (nodeToDigit b) m2 r )
+
+
+viewLeftHead : Tree a tag -> Maybe (Node a tag)
+viewLeftHead tree =
+    case tree of
+        Empty ->
+            Nothing
+
+        Single a ->
+            Just a
+
+        Deep _ (Two a _) _ _ ->
+            Just a
+
+        Deep _ (Three a _ _) _ _ ->
+            Just a
+
+        Deep _ (Four a _ _ _) _ _ ->
+            Just a
+
+        Deep _ (One a) _ _ ->
+            Just a
 
 
 viewRightNode : Config a tag -> Tree a tag -> Maybe ( Node a tag, Tree a tag )
@@ -387,57 +277,64 @@ viewRightNode config tree =
                     Just ( a, digitToTree config l )
 
                 Just ( b, m2 ) ->
-                    Just ( a, deep config l m2 (nodeToDigit config b) )
-
-
-nodeToEl : Node a tag -> Maybe ( tag, a )
-nodeToEl node =
-    case node of
-        Tip a tag ->
-            Just ( tag, a )
-
-        _ ->
-            Nothing
-
-
-pairWith : b -> a -> ( a, b )
-pairWith b a =
-    ( a, b )
+                    Just ( a, deep config l m2 (nodeToDigit b) )
 
 
 viewLeft : Config a tag -> Tree a tag -> Maybe ( ( tag, a ), Tree a tag )
 viewLeft config tree =
     case viewLeftNode config tree of
-        Just ( na, rest ) ->
-            nodeToEl na |> Maybe.map (pairWith rest)
+        Just ( Tip a tag, rest ) ->
+            Just ( ( tag, a ), rest )
 
-        Nothing ->
+        _ ->
             Nothing
 
 
 viewRight : Config a tag -> Tree a tag -> Maybe ( ( tag, a ), Tree a tag )
 viewRight config tree =
     case viewRightNode config tree of
-        Just ( na, rest ) ->
-            nodeToEl na |> Maybe.map (pairWith rest)
+        Just ( Tip a tag, rest ) ->
+            Just ( ( tag, a ), rest )
 
-        Nothing ->
+        _ ->
             Nothing
 
 
-isEmpty : Tree a tag -> Bool
-isEmpty t =
-    t == Empty
+head : Tree a tag -> Maybe a
+head tree =
+    case viewLeftHead tree of
+        Just (Tip a _) ->
+            Just a
 
-
-head : Config a tag -> Tree a tag -> Maybe a
-head config tree =
-    viewLeft config tree |> Maybe.map (Tuple.first >> Tuple.second)
+        _ ->
+            Nothing
 
 
 tail : Config a tag -> Tree a tag -> Maybe (Tree a tag)
 tail config tree =
-    viewLeft config tree |> Maybe.map Tuple.second
+    case tree of
+        Empty ->
+            Nothing
+
+        Single _ ->
+            Just Empty
+
+        Deep _ (Two _ b) m r ->
+            Just (deep config (One b) m r)
+
+        Deep _ (Three _ b c) m r ->
+            Just (deep config (Two b c) m r)
+
+        Deep _ (Four _ b c d) m r ->
+            Just (deep config (Three b c d) m r)
+
+        Deep _ (One _) m r ->
+            case viewLeftNode config m of
+                Nothing ->
+                    Just (digitToTree config r)
+
+                Just ( b, m2 ) ->
+                    Just (deep config (nodeToDigit b) m2 r)
 
 
 end : Config a tag -> Tree a tag -> Maybe a
@@ -559,7 +456,7 @@ deepL config ll m r =
                     digitToTree config r
 
                 Just ( a, m2 ) ->
-                    deep config (nodeToDigit config a) m2 r
+                    deep config (nodeToDigit a) m2 r
 
         Just l ->
             deep config l m r
@@ -574,7 +471,7 @@ deepR config l m rr =
                     digitToTree config l
 
                 Just ( a, m2 ) ->
-                    deep config l m2 (nodeToDigit config a)
+                    deep config l m2 (nodeToDigit a)
 
         Just r ->
             deep config l m r
@@ -681,9 +578,6 @@ splitTree ({ combine } as config) p i t =
             let
                 vl =
                     combine i (tagOfDigit config l)
-
-                vm =
-                    combine vl (tagOfTree config m)
             in
             if p vl then
                 let
@@ -692,28 +586,33 @@ splitTree ({ combine } as config) p i t =
                 in
                 ( left |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty, deepL config right m r )
 
-            else if p vm then
-                let
-                    ( ml, mr ) =
-                        splitTree config p vl m
-                in
-                case viewLeftNode config mr of
-                    Just ( xs, mrr ) ->
-                        let
-                            ( lf, rf ) =
-                                cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit config xs)
-                        in
-                        ( deepR config l ml lf, deepL config rf mr r )
-
-                    Nothing ->
-                        ( deepR config l ml Nothing, deepL config Nothing mr r )
-
             else
                 let
-                    ( left, right ) =
-                        cutDigit config p vm r
+                    vm =
+                        combine vl (tagOfTree config m)
                 in
-                ( deepR config l m left, right |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty )
+                if p vm then
+                    let
+                        ( ml, mr ) =
+                            splitTree config p vl m
+                    in
+                    case viewLeftHead mr of
+                        Just xs ->
+                            let
+                                ( lf, rf ) =
+                                    cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit xs)
+                            in
+                            ( deepR config l ml lf, deepL config rf mr r )
+
+                        Nothing ->
+                            ( deepR config l ml Nothing, deepL config Nothing mr r )
+
+                else
+                    let
+                        ( left, right ) =
+                            cutDigit config p vm r
+                    in
+                    ( deepR config l m left, right |> Maybe.map (digitToTree config) |> Maybe.withDefault Empty )
 
 
 foldLNode : (b -> ( tag, a ) -> b) -> b -> Node a tag -> b
