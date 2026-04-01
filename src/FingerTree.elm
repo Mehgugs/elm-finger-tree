@@ -6,6 +6,7 @@ module FingerTree exposing
     , append, split, splitAt, cut, foldLeft, foldRight, toList, equal
     , Tagged, unconsLeft, unconsRight, cutWithTag, foldLeftWithTag, foldRightWithTag
     , config, mempty, mappend, annotator
+    , unwrap, usingConfig
     )
 
 {-| This package provides an implementation of 2-3 finger trees. Finger trees are a general purpose purely functional data structure that
@@ -58,17 +59,31 @@ monoid under the action of a particular function, and I think for the purposes o
 
 @docs config, mempty, mappend, annotator
 
+
+# Unwrapping trees
+
+To help keep things consistent when computing on trees this module caches the configuration inside the `Tree` type,
+but by storing the `combine` and `annotate` function we can no longer safely save this type into our `Model`.
+The [FingerTree.Unwrapped](FingerTree-Unwrapped) module provides a more manual API where the config is explicitly passed in
+to the functions as necessary.
+
+These functions can be used to convert from a wrapped representation to an unwrapped one.
+
+@docs unwrap, usingConfig
+
 -}
 
 import FingerTree.Internal as Internal
+import FingerTree.Types as Types exposing (TreeConfig(..))
+import FingerTree.Unwrapped as Unwrapped
 
 
 {-| The Config type records the `tag` type's semantics. This includes the zero value, and the `combine` definition in used.
 This type could also be called "annotator" or "decorator", because it tells the functions in this module how they should
 annotate the nodes of the tree.
 -}
-type Config a tag
-    = Cfg (Internal.Config a tag)
+type alias Config a tag =
+    TreeConfig a tag
 
 
 {-| The Tree type is a finger tree with elements of type `a` annotated by type `tag`, instantiated with a particular tag `Config`.
@@ -77,10 +92,14 @@ type Tree a tag
     = Tree (Internal.Config a tag) (Internal.Tree a tag)
 
 
-{-| Type alias for pairs of elements and their tag.
+{-| Type alias for pairs of elements and their annotation.
 -}
 type alias Tagged a tag =
     ( tag, a )
+
+
+type alias UnwrappedTree a tag =
+    Unwrapped.Tree a tag
 
 
 {-| Create a new tree config. You need to provide a function that annotates nodes, an **associative** function which can be used to combine two annotations, and a zero value for the annotations to start with.
@@ -341,3 +360,47 @@ foldLeftWithTag f init (Tree _ t) =
 foldRightWithTag : (Tagged a tag -> b -> b) -> Tree a tag -> b -> b
 foldRightWithTag f (Tree _ t) init =
     Internal.foldr f t init
+
+
+{-| Unwrap a tree, removing the cached config.
+-}
+unwrap : Tree a tag -> UnwrappedTree a tag
+unwrap (Tree _ t) =
+    Types.Tree t
+
+
+{-| Operate on an unwrapped tree using the functions from the wrapped module.
+
+    simple : Config a Int
+    simple =
+        create
+            { empty = 0
+            , combine = (+)
+            , annotate = always 1
+            }
+
+    emptyTree : Tree a Int
+    emptyTree =
+        empty simple
+
+    updateTree :
+        Unwrapped.Tree a Int
+        -> ( a, Unwrapped.Tree a Int )
+    updateTree stored =
+        usingConfig simple <|
+            \tree ->
+                case viewLeft tree of
+                    Just ( x, rest ) ->
+                        ( Just x, rest )
+
+                    Nothing ->
+                        ( Nothing, emptyTree )
+
+-}
+usingConfig : Config a tag -> (Tree a tag -> ( x, Tree a tag )) -> UnwrappedTree a tag -> ( x, UnwrappedTree a tag )
+usingConfig (Cfg c) f (Types.Tree t) =
+    let
+        ( x, tree ) =
+            f (Tree c t)
+    in
+    ( x, unwrap tree )
