@@ -596,13 +596,13 @@ splitTree ({ combine } as config) p i t =
                         ( ml, mr ) =
                             splitTree config p vl m
                     in
-                    case viewLeftHead mr of
-                        Just xs ->
+                    case viewLeftNode config mr of
+                        Just ( xs, rest ) ->
                             let
                                 ( lf, rf ) =
                                     cutDigit config p (combine vl (tagOfTree config ml)) (nodeToDigit xs)
                             in
-                            ( deepR config l ml lf, deepL config rf mr r )
+                            ( deepR config l ml lf, deepL config rf rest r )
 
                         Nothing ->
                             ( deepR config l ml Nothing, deepL config Nothing mr r )

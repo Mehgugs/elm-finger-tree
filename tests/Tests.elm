@@ -26,6 +26,10 @@ fuzzer =
             )
 
 
+fuzzerWithElt =
+    fuzzer |> Fuzz.andThen (\tree -> Fuzz.uniformInt (Ft.length tree - 1) |> Fuzz.map (\e -> ( tree, 1 + e )))
+
+
 suite : Test
 suite =
     describe "The FingerTree module"
@@ -152,6 +156,13 @@ suite =
 
                         _ ->
                             Expect.fail "non empty tree split should not fail"
+            , Test.fuzz fuzzerWithElt "the sum of the lengths the splits is the length of the source" <|
+                \( tree, e ) ->
+                    let
+                        ( l, r ) =
+                            Ft.splitAt e tree
+                    in
+                    Expect.equal (Ft.length l + Ft.length r) (Ft.length tree)
             ]
         , describe "equal"
             [ Test.fuzz fuzzer "only the empty tree is equal to itself" <|

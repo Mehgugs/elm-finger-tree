@@ -2,7 +2,8 @@
   "version": "5",
   "specifiers": {
     "npm:elm-doc-preview@^6.0.1": "6.0.1",
-    "npm:elm-review@^2.13.5": "2.13.5"
+    "npm:elm-review@^2.13.5": "2.13.5",
+    "npm:elm-test@~0.19.1-revision17": "0.19.1-revision17"
   },
   "npm": {
     "@isaacs/cliui@9.0.0": {
@@ -255,6 +256,9 @@
     "commander@12.1.0": {
       "integrity": "sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA=="
     },
+    "commander@9.5.0": {
+      "integrity": "sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ=="
+    },
     "concat-map@0.0.1": {
       "integrity": "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="
     },
@@ -356,7 +360,7 @@
       "dependencies": [
         "chalk@5.6.2",
         "chokidar",
-        "commander",
+        "commander@12.1.0",
         "cross-spawn",
         "express",
         "express-ws",
@@ -396,6 +400,22 @@
     },
     "elm-solve-deps-wasm@2.0.0": {
       "integrity": "sha512-11OV8FgB9qsth/F94q2SJjb1MoEgbworSyNM1L+YlxVoaxp7wtWPyA8cNcPEkSoIKG1B8Tqg68ED1P6dVamHSg=="
+    },
+    "elm-test@0.19.1-revision17": {
+      "integrity": "sha512-P9J8tXdLXmqgIMlSozfcb/KCORq4GuxfwBbzqFLMss8KlGmUKonOJwseRX6xVkdU5xgGVA/mz9rfMTNomIbwng==",
+      "dependencies": [
+        "chalk@4.1.2",
+        "chokidar",
+        "commander@9.5.0",
+        "cross-spawn",
+        "elm-solve-deps-wasm",
+        "graceful-fs@4.2.11",
+        "split",
+        "tinyglobby",
+        "which",
+        "xmlbuilder"
+      ],
+      "bin": true
     },
     "emoji-regex@8.0.0": {
       "integrity": "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="
@@ -581,6 +601,7 @@
         "package-json-from-dist",
         "path-scurry"
       ],
+      "deprecated": true,
       "bin": true
     },
     "gopd@1.2.0": {
@@ -1130,6 +1151,12 @@
     "sisteransi@1.0.5": {
       "integrity": "sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg=="
     },
+    "split@1.0.1": {
+      "integrity": "sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==",
+      "dependencies": [
+        "through"
+      ]
+    },
     "statuses@1.5.0": {
       "integrity": "sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA=="
     },
@@ -1178,6 +1205,9 @@
         "ansi-escapes",
         "supports-hyperlinks"
       ]
+    },
+    "through@2.3.8": {
+      "integrity": "sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg=="
     },
     "tinyglobby@0.2.15": {
       "integrity": "sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==",
@@ -1259,6 +1289,9 @@
         "is-wsl"
       ]
     },
+    "xmlbuilder@15.1.1": {
+      "integrity": "sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg=="
+    },
     "yocto-queue@0.1.0": {
       "integrity": "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
     }
@@ -1266,7 +1299,8 @@
   "workspace": {
     "dependencies": [
       "npm:elm-doc-preview@^6.0.1",
-      "npm:elm-review@^2.13.5"
+      "npm:elm-review@^2.13.5",
+      "npm:elm-test@~0.19.1-revision17"
     ]
   }
 }
