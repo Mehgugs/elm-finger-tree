@@ -1,6 +1,6 @@
 module FingerTree.Unwrapped exposing
     ( Tree, Config
-    , empty
+    , create, empty
     , consLeft, consRight, appendList, prependList
     , isEmpty, annotation, head, tail, prefix, last, viewLeft, viewRight, length
     , append, split, splitAt, cut, foldLeft, foldRight, toList, equal
@@ -22,7 +22,7 @@ _This module is an exact mirror of [the FingerTree module](FingerTree); please s
 
 # Creation
 
-@docs empty
+@docs create, empty
 
 
 # Inserting elements
@@ -74,6 +74,12 @@ type alias Tagged a tag =
 empty : Tree a tag
 empty =
     Tree Internal.Empty
+
+
+{-| -}
+create : { annotate : a -> tag, combine : tag -> tag -> tag, empty : tag } -> Config a tag
+create props =
+    Cfg { zero = props.empty, combine = props.combine, tag = props.annotate }
 
 
 {-| -}
